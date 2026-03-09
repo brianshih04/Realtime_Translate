@@ -8,6 +8,7 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Spinner
@@ -17,6 +18,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.translateapp.data.TranslationDatabase
+import com.example.translateapp.repository.OfflineRepository
 import com.example.translateapp.viewmodel.TranslateViewModel
 import java.util.Locale
 
@@ -24,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     
     private lateinit var viewModel: TranslateViewModel
     private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var offlineRepository: OfflineRepository
+    private lateinit var historyAdapter: HistoryAdapter
     
     // 語音識別結果回調
     private val speechLauncher = registerForActivityResult(
@@ -54,6 +60,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
+        // 初始化 OfflineRepository
+        offlineRepository = OfflineRepository(this)
+        
         // 初始化 ViewModel
         viewModel = ViewModelProvider(this)[TranslateViewModel::class.java]
         
@@ -65,6 +74,9 @@ class MainActivity : AppCompatActivity() {
         
         // 初始化語言選擇器
         setupLanguageSpinners()
+        
+        // 初始化歷史記錄 RecyclerView
+        setupHistoryRecyclerView()
         
         // 監聽ViewModel狀態變化
         setupViewModelListener()
@@ -84,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         val btnClear: Button = findViewById(R.id.btnClear)
         val btnCopy: Button = findViewById(R.id.btnCopy)
         val btnSwap: Button = findViewById(R.id.btnSwap)
+        val cbOfflineMode: CheckBox = findViewById(R.id.cbOfflineMode)
         val etInputText: EditText = findViewById(R.id.etInputText)
         val tvResult: TextView = findViewById(R.id.tvResult)
         val progressBar: ProgressBar = findViewById(R.id.progressBar)
@@ -113,6 +126,11 @@ class MainActivity : AppCompatActivity() {
         // 交換語言按鈕點擊事件
         btnSwap.setOnClickListener {
             viewModel.swapLanguages()
+        }
+        
+        // 離線模式切換事件
+        cbOfflineMode.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.setIsOfflineMode(isChecked)
         }
     }
     
@@ -173,6 +191,18 @@ class MainActivity : AppCompatActivity() {
         })
     }
     
+    private fun setupHistoryRecyclerView() {
+        val rvHistory = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvHistory)
+        historyAdapter = HistoryAdapter(emptyList()) { history ->
+            // 點擊歷史記錄時，將文字填入輸入框
+            viewModel.setInputText(history.sourceText)
+            viewModel.setResultText(history.targetText)
+        }
+        
+        rvHistory.layoutManager = LinearLayoutManager(this)
+        rvHistory.adapter = historyAdapter
+    }
+    
     private fun setupViewModelListener() {
         lifecycleScope.launchWhenStarted {
             viewModel.state.collect { state ->
@@ -185,6 +215,9 @@ class MainActivity : AppCompatActivity() {
                     findViewById<TextView>(R.id.tvResult).text = state.resultText
                 }
                 
+                // 更新歷史記錄
+                historyAdapter.updateData(state.historyList)
+                
                 // 顯示錯誤訊息
                 state.errorMessage?.let { message ->
                     Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
@@ -192,6 +225,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        
+        // 開始監聽歷史記錄
+        viewModel.loadHistory()
     }
     
     private fun checkSpeechPermission() {

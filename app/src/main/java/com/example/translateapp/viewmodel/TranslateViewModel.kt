@@ -3,6 +3,7 @@ package com.example.translateapp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.translateapp.repository.TranslateRepository
+import com.example.translateapp.repository.OfflineRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,10 +15,14 @@ data class TranslateState(
     val targetLanguage: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val isTranslationSuccessful: Boolean = false
+    val isTranslationSuccessful: Boolean = false,
+    val historyList: List<com.example.translateapp.data.TranslationHistory> = emptyList(),
+    val isOfflineMode: Boolean = false
 )
 
-class TranslateViewModel : ViewModel() {
+class TranslateViewModel(
+    private val offlineRepository: OfflineRepository? = null
+) : ViewModel() {
     private val repository = TranslateRepository()
     
     private val _state = MutableStateFlow(TranslateState())
@@ -37,6 +42,10 @@ class TranslateViewModel : ViewModel() {
 
     fun setTargetLanguage(language: String) {
         _state.value = _state.value.copy(targetLanguage = language)
+    }
+
+    fun setIsOfflineMode(isOffline: Boolean) {
+        _state.value = _state.value.copy(isOfflineMode = isOffline)
     }
 
     fun clear() {
@@ -62,11 +71,35 @@ class TranslateViewModel : ViewModel() {
         
         viewModelScope.launch {
             try {
-                val result = repository.translateText(
-                    text,
-                    targetLanguage,
-                    if (currentState.sourceLanguage.isEmpty()) null else currentState.sourceLanguage
-                )
+                val result = if (currentState.isOfflineMode && offlineRepository != null) {
+                    // 離線翻譯
+                    val offlineResult = offlineRepository.translateOffline(text, targetLanguage)
+                    // 儲存到歷史記錄
+                    offlineRepository.saveTranslationHistory(
+                        text,
+                        result,
+                        currentState.sourceLanguage,
+                        targetLanguage,
+                        isFromOffline = true
+                    )
+                    offlineResult
+                } else {
+                    // 線上翻譯
+                    val result = repository.translateText(
+                        text,
+                        targetLanguage,
+                        if (currentState.sourceLanguage.isEmpty()) null else currentState.sourceLanguage
+                    )
+                    // 儲存到歷史記錄
+                    offlineRepository?.saveTranslationHistory(
+                        text,
+                        result,
+                        currentState.sourceLanguage,
+                        targetLanguage,
+                        isFromOffline = false
+                    )
+                    result
+                }
                 
                 _state.value = currentState.copy(
                     resultText = result,
@@ -83,6 +116,28 @@ class TranslateViewModel : ViewModel() {
         }
     }
 
+    fun translateAndSave() {
+        val currentState = _state.value
+        val text = currentState.inputText
+        val result = currentState.resultText
+        val sourceLanguage = currentState.sourceLanguage
+        val targetLanguage = currentState.targetLanguage
+        
+        if (text.isEmpty() || result.isEmpty()) {
+            return
+        }
+        
+        viewModelScope.launch {
+            offlineRepository?.saveTranslationHistory(
+                text,
+                result,
+                sourceLanguage,
+                targetLanguage,
+                currentState.isOfflineMode
+            )
+        }
+    }
+
     fun swapLanguages() {
         val currentState = _state.value
         _state.value = currentState.copy(
@@ -93,5 +148,25 @@ class TranslateViewModel : ViewModel() {
 
     fun clearError() {
         _state.value = _state.value.copy(errorMessage = null)
+    }
+
+    fun loadHistory() {
+        viewModelScope.launch {
+            offlineRepository?.getTranslationHistory()?.collect { histories ->
+                _state.value = _state.value.copy(historyList = histories)
+            }
+        }
+    }
+
+    fun deleteHistoryItem(history: com.example.translateapp.data.TranslationHistory) {
+        viewModelScope.launch {
+            offlineRepository?.deleteHistory(history)
+        }
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            offlineRepository?.clearHistory()
+        }
     }
 }

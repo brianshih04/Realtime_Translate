@@ -65,6 +65,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- 離線模式切換 -->
+    <CheckBox
+        android:id="@+id/cbOfflineMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="離線模式"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/btnSpeech"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- 輸入文字區域 -->
     <EditText
         android:id="@+id/etInputText"
@@ -80,7 +92,7 @@
         android:maxLines="5"
         android:scrollbars="vertical"
         android:backgroundTint="@color/primaryColor"
-        app:layout_constraintTop_toBottomOf="@id/btnSpeech"
+        app:layout_constraintTop_toBottomOf="@id/cbOfflineMode"
         app:layout_constraintBottom_toTopOf="@id/btnTranslate"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -163,13 +175,38 @@
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:gravity="top|start"
         android:textSize="16sp"
         android:background="@color/surfaceColor"
         android:padding="16dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/tvResultLabel"
+        app:layout_constraintBottom_toTopOf="@id/tvHistoryLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 歷史記錄標籤 -->
+    <TextView
+        android:id="@+id/tvHistoryLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="最近記錄："
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/tvResult"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 歷史記錄列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHistory"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/surfaceColor"
+        app:layout_constraintTop_toBottomOf="@id/tvHistoryLabel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
