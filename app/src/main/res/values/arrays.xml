@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="languages">
+<string-array name="languages">
         <item>自動偵測</item>
         <item>中文 (繁體)</item>
         <item>英文</item>
@@ -12,5 +12,6 @@
         <item>越南文</item>
         <item>印尼文</item>
         <item>泰文</item>
+        <item>俄羅斯語</item>
     </string-array>
 </resources>

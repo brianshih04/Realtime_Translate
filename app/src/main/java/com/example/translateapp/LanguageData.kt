@@ -17,7 +17,8 @@ object LanguageData {
         Language("德文", "de"),
         Language("越南文", "vi"),
         Language("印尼文", "id"),
-        Language("泰文", "th")
+        Language("泰文", "th"),
+        Language("俄羅斯語", "ru")
     )
 
     fun getLanguageCode(name: String): String {

@@ -30,7 +30,8 @@
     <string name="language_german">德文</string>
     <string name="language_vietnamese">越南文</string>
     <string name="language_indonesian">印尼文</string>
-    <string name="language_thai">泰文</string>
+<string name="language_thai">泰文</string>
+    <string name="language_russian">俄羅斯語</string>
     
     <!-- 教程文字 -->
     <string name="tutorial_title">歡迎使用即時翻譯助手</string>
