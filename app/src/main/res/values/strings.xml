@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">即時翻譯助手</string>
+    
+    <!-- UI 文字 -->
+    <string name="hint_source_language">選擇來源語言</string>
+    <string name="hint_target_language">選擇目標語言</string>
+    <string name="hint_input_text">輸入文字或點擊語音按鈕</string>
+    <string name="btn_speech">🎤 語音輸入</string>
+    <string name="btn_translate">翻譯</string>
+    <string name="btn_clear">清除</string>
+    <string name="btn_copy">複製</string>
+    <string name="btn_swap">⇄ 換語言</string>
+    
+    <!-- 狀態文字 -->
+    <string name="loading">翻譯中...</string>
+    <string name="error_network">無法連線到網路</string>
+    <string name="error_translate">翻譯失敗，請稍後再試</string>
+    <string name="error_permission">請授予錄音權限</string>
+    <string name="success_copy">已複製到剪貼簿</string>
+    
+    <!-- 語言選項 -->
+    <string name="language_auto">自動偵測</string>
+    <string name="language_chinese">中文 (繁體)</string>
+    <string name="language_english">英文</string>
+    <string name="language_japanese">日文</string>
+    <string name="language_korean">韓文</string>
+    <string name="language_spanish">西班牙文</string>
+    <string name="language_french">法文</string>
+    <string name="language_german">德文</string>
+    <string name="language_vietnamese">越南文</string>
+    <string name="language_indonesian">印尼文</string>
+    <string name="language_thai">泰文</string>
+    
+    <!-- 教程文字 -->
+    <string name="tutorial_title">歡迎使用即時翻譯助手</string>
+    <string name="tutorial_step1">1. 點擊「語音輸入」按鈕來錄音</string>
+    <string name="tutorial_step2">2. 或直接輸入文字</string>
+    <string name="tutorial_step3">3. 選擇目標語言後點擊「翻譯」</string>
+    <string name="tutorial_step4">4. 複製翻譯結果或分享給他人</string>
+    <string name="tutorial_get_started">開始使用</string>
+</resources>
